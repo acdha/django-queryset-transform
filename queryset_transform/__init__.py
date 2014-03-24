@@ -1,12 +1,12 @@
 from django.db import models
 
-class TransformQuerySet(models.query.QuerySet):
+class TransformQuerySetMixin(object):
     def __init__(self, *args, **kwargs):
-        super(TransformQuerySet, self).__init__(*args, **kwargs)
+        super(TransformQuerySetMixin, self).__init__(*args, **kwargs)
         self._transform_fns = []
 
     def _clone(self, klass=None, setup=False, **kw):
-        c = super(TransformQuerySet, self)._clone(klass, setup, **kw)
+        c = super(TransformQuerySetMixin, self)._clone(klass, setup, **kw)
         c._transform_fns = self._transform_fns[:]
         return c
 
@@ -16,7 +16,7 @@ class TransformQuerySet(models.query.QuerySet):
         return c
 
     def iterator(self):
-        result_iter = super(TransformQuerySet, self).iterator()
+        result_iter = super(TransformQuerySetMixin, self).iterator()
         if self._transform_fns:
             results = list(result_iter)
             for fn in self._transform_fns:
@@ -24,7 +24,11 @@ class TransformQuerySet(models.query.QuerySet):
             return iter(results)
         return result_iter
 
-class TransformManager(models.Manager):
 
+class TransformQuerySet(TransformQuerySetMixin, models.query.QuerySet):
+    pass
+
+
+class TransformManager(models.Manager):
     def get_query_set(self):
         return TransformQuerySet(self.model)
