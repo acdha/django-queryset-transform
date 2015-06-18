@@ -9,5 +9,5 @@ class GeoTransformQuerySet(TransformQuerySetMixin, GeoQuerySet):
 
 
 class GeoTransformManager(GeoManager):
-    def get_query_set(self):
+    def get_queryset(self):
         return GeoTransformQuerySet(self.model)
